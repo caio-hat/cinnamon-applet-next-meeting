@@ -1,0 +1,127 @@
+{
+    "layout": {
+        "type": "layout",
+        "pages": ["main", "advanced"],
+        "main": {
+            "type": "page",
+            "title": "General",
+            "sections": ["calendars-section", "panel-section", "privacy-section"]
+        },
+        "advanced": {
+            "type": "page",
+            "title": "Advanced",
+            "sections": ["notifications-section", "refresh-section"]
+        },
+        "calendars-section": {
+            "type": "section",
+            "title": "Calendars",
+            "keys": ["calendars"]
+        },
+        "panel-section": {
+            "type": "section",
+            "title": "Panel and Popup",
+            "keys": ["show-in-panel", "label-max-chars", "timer-position", "marquee-enabled", "marquee-speed", "show-tentative"]
+        },
+        "privacy-section": {
+            "type": "section",
+            "title": "Privacy",
+            "keys": ["hidden-mode"]
+        },
+        "notifications-section": {
+            "type": "section",
+            "title": "Notifications",
+            "keys": ["notify-enabled", "notify-before", "notify-conflicts"]
+        },
+        "refresh-section": {
+            "type": "section",
+            "title": "Refresh",
+            "keys": ["refresh-interval"]
+        }
+    },
+    "calendars": {
+        "type": "list",
+        "description": "Calendars (Google, Outlook, Apple, Nextcloud... ICS/iCal URLs)",
+        "columns": [
+            { "id": "name",    "title": "Name",        "type": "string" },
+            { "id": "url",     "title": "ICS URL",     "type": "string" },
+            { "id": "color",   "title": "Color (hex)", "type": "string" },
+            { "id": "enabled", "title": "Active",      "type": "boolean" }
+        ],
+        "default": []
+    },
+    "show-in-panel": {
+        "type": "switch",
+        "default": true,
+        "description": "Show text in panel (disable for No Display Mode - icon only)"
+    },
+    "label-max-chars": {
+        "type": "spinbutton",
+        "default": 40,
+        "min": 10,
+        "max": 100,
+        "step": 1,
+        "units": "characters",
+        "description": "Maximum text length in panel"
+    },
+    "timer-position": {
+        "type": "combobox",
+        "default": "start",
+        "description": "Timer position in panel label",
+        "options": {
+            "Before meeting name": "start",
+            "After meeting name": "end"
+        }
+    },
+    "marquee-enabled": {
+        "type": "switch",
+        "default": false,
+        "description": "Scrolling text in panel when name is too long (marquee)"
+    },
+    "marquee-speed": {
+        "type": "spinbutton",
+        "default": 4,
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "units": "x100 ms",
+        "description": "Scroll speed (1=fast, 20=slow)"
+    },
+    "show-tentative": {
+        "type": "switch",
+        "default": true,
+        "description": "Show tentative meetings in popup"
+    },
+    "hidden-mode": {
+        "type": "switch",
+        "default": false,
+        "description": "Hidden Mode: shows only the remaining time (countdown), hides meeting name and time in panel. Useful for screen sharing or recording."
+    },
+    "notify-enabled": {
+        "type": "switch",
+        "default": true,
+        "description": "Notify before meeting starts"
+    },
+    "notify-before": {
+        "type": "spinbutton",
+        "default": 30,
+        "min": 1,
+        "max": 120,
+        "step": 1,
+        "units": "minutes",
+        "description": "Reminder advance time"
+    },
+    "notify-conflicts": {
+        "type": "switch",
+        "default": true,
+        "description": "Notify on time conflicts (critical urgency)"
+    },
+    "refresh-interval": {
+        "type": "spinbutton",
+        "default": 5,
+        "min": 1,
+        "max": 60,
+        "step": 1,
+        "units": "minutes",
+        "description": "Calendar refresh interval"
+    }
+}

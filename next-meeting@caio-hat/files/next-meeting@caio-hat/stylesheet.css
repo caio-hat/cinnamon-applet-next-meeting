@@ -1,0 +1,9 @@
+.next-meeting-next-item {
+    padding: 8px 10px;
+}
+
+.next-meeting-day-header {
+    padding: 4px 6px 2px 6px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.75);
+}

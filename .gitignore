@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Compiled translations (built by setup.sh on install)
+*.mo
+
+# Editor / OS
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

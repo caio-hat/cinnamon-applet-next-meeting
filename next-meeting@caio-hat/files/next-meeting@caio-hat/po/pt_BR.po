@@ -1,0 +1,243 @@
+# Brazilian Portuguese translation for Next Meeting applet.
+# Copyright (C) 2025 caio-hat
+# This file is distributed under the same license as the applet.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: next-meeting 2.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-16 00:00+0000\n"
+"PO-Revision-Date: 2025-05-16 00:00+0000\n"
+"Last-Translator: caio-hat\n"
+"Language-Team: Brazilian Portuguese\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Next Meeting - loading..."
+msgstr "Próxima Reunião - carregando..."
+
+msgid "Loading..."
+msgstr "Carregando..."
+
+msgid "Next 24 hours"
+msgstr "Próximas 24 horas"
+
+msgid "Next 3 days"
+msgstr "Próximos 3 dias"
+
+msgid "Next 7 days"
+msgstr "Próximos 7 dias"
+
+msgid "Hidden mode (countdown only)"
+msgstr "Modo oculto (só contagem regressiva)"
+
+msgid "Show text in panel"
+msgstr "Exibir texto na barra"
+
+msgid "Show tentative meetings"
+msgstr "Mostrar reuniões pendentes"
+
+msgid "Refresh now"
+msgstr "Atualizar agora"
+
+msgid "Settings"
+msgstr "Configurações"
+
+msgid "(error)"
+msgstr "(erro)"
+
+msgid "(no meetings)"
+msgstr "(nenhuma reunião)"
+
+msgid "No meetings"
+msgstr "Sem reuniões"
+
+msgid "No meetings in the next 7 days"
+msgstr "Sem reuniões nos próximos 7 dias"
+
+msgid "No more meetings today"
+msgstr "Nenhuma reunião restante hoje"
+
+msgid "No Display Mode - click the icon to see meetings"
+msgstr "Modo sem exibição - clique no ícone para ver as reuniões"
+
+msgid "Hidden Mode - meeting in progress\nClick the icon to see details"
+msgstr "Modo oculto - reunião em andamento\nClique no ícone para ver detalhes"
+
+#, javascript-format
+msgid "Hidden Mode - next meeting %s\nClick the icon to see details"
+msgstr "Modo oculto - próxima reunião %s\nClique no ícone para ver detalhes"
+
+msgid "Time conflict!"
+msgstr "Conflito de horário!"
+
+msgid "TIME CONFLICT!"
+msgstr "CONFLITO DE HORÁRIO!"
+
+#, javascript-format
+msgid "in progress (%d min ago)"
+msgstr "em curso (há %d min)"
+
+#, javascript-format
+msgid "IN PROGRESS (%d min ago) · until %s"
+msgstr "EM ANDAMENTO (há %d min) · até %s"
+
+#, javascript-format
+msgid "IN PROGRESS: %s"
+msgstr "EM ANDAMENTO: %s"
+
+#, javascript-format
+msgid "%d min ago"
+msgstr "há %d min"
+
+msgid "(tentative)"
+msgstr "(pendente)"
+
+msgid "[TENTATIVE]"
+msgstr "[PENDENTE]"
+
+#, javascript-format
+msgid "now (%d min ago)"
+msgstr "agora (há %d min)"
+
+#, javascript-format
+msgid "in %d min"
+msgstr "em %d min"
+
+#, javascript-format
+msgid "in %dh"
+msgstr "em %dh"
+
+#, javascript-format
+msgid "in %dh %dmin"
+msgstr "em %dh %dmin"
+
+#, javascript-format
+msgid "in %d day(s)"
+msgstr "em %d dia(s)"
+
+#, javascript-format
+msgid "Meeting in %d minute"
+msgid_plural "Meeting in %d minutes"
+msgstr[0] "Reunião em %d minuto"
+msgstr[1] "Reunião em %d minutos"
+
+#, javascript-format
+msgid "Conflict: %d meetings at the same time"
+msgstr "Conflito: %d reuniões no mesmo horário"
+
+msgid "No response"
+msgstr "Sem resposta"
+
+msgid "Error fetching meetings"
+msgstr "Erro ao buscar reuniões"
+
+msgid "Error parsing response"
+msgstr "Erro ao processar resposta"
+
+msgid "python3 not found"
+msgstr "python3 não encontrado"
+
+msgid "Untitled"
+msgstr "Sem título"
+
+msgid "No calendar configured. Right-click the applet -> Configure -> add an ICS URL."
+msgstr "Nenhum calendário configurado. Clique direito no applet -> Configurar -> adicione uma URL ICS."
+
+msgid "Recurring events may not appear. Install: sudo apt install python3-icalendar python3-recurring-ical-events"
+msgstr "Eventos recorrentes podem não aparecer. Instale: sudo apt install python3-icalendar python3-recurring-ical-events"
+
+#, python-format
+msgid "%(name)s: fetch error (%(error)s)"
+msgstr "%(name)s: erro ao buscar (%(error)s)"
+
+#, python-format
+msgid "%(name)s: parse error (%(error)s)"
+msgstr "%(name)s: erro de leitura (%(error)s)"
+
+msgid "calendar"
+msgstr "calendário"
+
+msgid "General"
+msgstr "Geral"
+
+msgid "Advanced"
+msgstr "Avançado"
+
+msgid "Calendars"
+msgstr "Calendários"
+
+msgid "Panel and Popup"
+msgstr "Barra e Menu"
+
+msgid "Privacy"
+msgstr "Privacidade"
+
+msgid "Notifications"
+msgstr "Notificações"
+
+msgid "Refresh"
+msgstr "Atualização"
+
+msgid "Calendars (Google, Outlook, Apple, Nextcloud... ICS/iCal URLs)"
+msgstr "Calendários (Google, Outlook, Apple, Nextcloud... URLs ICS/iCal)"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "ICS URL"
+msgstr "URL ICS"
+
+msgid "Color (hex)"
+msgstr "Cor (hex)"
+
+msgid "Active"
+msgstr "Ativo"
+
+msgid "Show text in panel (disable for No Display Mode - icon only)"
+msgstr "Exibir texto na barra (desligue para Modo Sem Exibição - apenas ícone)"
+
+msgid "Maximum text length in panel"
+msgstr "Tamanho máximo do texto na barra"
+
+msgid "characters"
+msgstr "caracteres"
+
+msgid "Timer position in panel label"
+msgstr "Posição do horário na barra"
+
+msgid "Before meeting name"
+msgstr "Antes do nome da reunião"
+
+msgid "After meeting name"
+msgstr "Após o nome da reunião"
+
+msgid "Scrolling text in panel when name is too long (marquee)"
+msgstr "Texto rolante na barra quando o nome é longo (marquee)"
+
+msgid "Scroll speed (1=fast, 20=slow)"
+msgstr "Velocidade de rolagem (1=rápido, 20=lento)"
+
+msgid "Show tentative meetings in popup"
+msgstr "Exibir reuniões pendentes/tentativas no menu"
+
+msgid "Hidden Mode: shows only the remaining time (countdown), hides meeting name and time in panel. Useful for screen sharing or recording."
+msgstr "Modo Oculto: mostra apenas o tempo restante (contagem regressiva), oculta nome e horário da reunião na barra. Útil para compartilhamento ou gravação de tela."
+
+msgid "Notify before meeting starts"
+msgstr "Notificar antes da reunião começar"
+
+msgid "Reminder advance time"
+msgstr "Antecedência do lembrete"
+
+msgid "minutes"
+msgstr "minutos"
+
+msgid "Notify on time conflicts (critical urgency)"
+msgstr "Notificar conflitos de horário (urgência crítica)"
+
+msgid "Calendar refresh interval"
+msgstr "Intervalo de atualização do calendário"
