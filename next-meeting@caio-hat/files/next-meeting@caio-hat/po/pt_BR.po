@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: next-meeting 2.3\n"
+"Project-Id-Version: next-meeting 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-16 00:00+0000\n"
-"PO-Revision-Date: 2025-05-16 00:00+0000\n"
+"POT-Creation-Date: 2026-05-18 00:00+0000\n"
+"PO-Revision-Date: 2026-05-18 00:00+0000\n"
 "Last-Translator: caio-hat\n"
 "Language-Team: Brazilian Portuguese\n"
 "Language: pt_BR\n"
@@ -223,6 +223,79 @@ msgstr "Velocidade de rolagem (1=rápido, 20=lento)"
 
 msgid "Show tentative meetings in popup"
 msgstr "Exibir reuniões pendentes/tentativas no menu"
+
+msgid "Show tentative meetings in panel (chronological order)"
+msgstr "Mostrar reuniões pendentes/tentativas na barra (ordem cronológica)"
+
+msgid "When ON, the panel shows the next meeting by time regardless of status. When OFF, only accepted meetings appear in the panel."
+msgstr "Quando ativo, a barra mostra a próxima reunião por horário, independente do status. Quando desativado, apenas reuniões aceitas aparecem na barra."
+
+# Help / Legend submenu
+msgid "Help / Legend"
+msgstr "Ajuda / Legenda"
+
+msgid "Status icons"
+msgstr "Ícones de status"
+
+msgid "Live meeting (in progress)"
+msgstr "Reunião em andamento"
+
+msgid "Accepted meeting (uses calendar color)"
+msgstr "Reunião aceita (usa a cor do calendário)"
+
+msgid "Tentative / pending response"
+msgstr "Pendente / aguardando resposta"
+
+msgid "Time conflict"
+msgstr "Conflito de horário"
+
+msgid "Has join link — click the meeting to open in browser"
+msgstr "Possui link da reunião — clique para abrir no navegador"
+
+msgid "Panel indicators"
+msgstr "Indicadores na barra"
+
+msgid "All today's meetings are done — next one is on another day"
+msgstr "Reuniões de hoje concluídas — próxima é em outro dia"
+
+msgid "Hidden Mode — countdown only"
+msgstr "Modo Oculto — apenas contagem regressiva"
+
+msgid "Hidden Mode + no meetings in the next 7 days"
+msgstr "Modo Oculto + sem reuniões nos próximos 7 dias"
+
+msgid "Prefix on panel label marks an active time conflict"
+msgstr "Prefixo na barra indica conflito de horário ativo"
+
+msgid "Tips"
+msgstr "Dicas"
+
+msgid "Click the applet to open this menu."
+msgstr "Clique no applet para abrir este menu."
+
+msgid "Right-click → Configure → add an ICS/iCal URL (Google, Outlook, Apple, Nextcloud...)."
+msgstr "Clique direito → Configurar → adicionar URL ICS/iCal (Google, Outlook, Apple, Nextcloud...)."
+
+msgid "Hidden Mode shows only the countdown — useful for screen sharing or recording."
+msgstr "Modo Oculto mostra apenas a contagem regressiva — útil para compartilhamento ou gravação de tela."
+
+msgid "Marquee scrolls long meeting names in the panel without moving the icon."
+msgstr "O Marquee rola nomes longos de reuniões na barra sem mover o ícone."
+
+msgid "Tentative meetings: use 'Show tentative meetings in panel' to control panel behavior."
+msgstr "Reuniões pendentes: use 'Mostrar reuniões pendentes na barra' para controlar a exibição."
+
+msgid "Notifications fire before a meeting starts (configurable in Settings → Advanced)."
+msgstr "As notificações aparecem antes da reunião começar (configurável em Configurações → Avançado)."
+
+msgid "About"
+msgstr "Sobre"
+
+msgid "Works with any RFC 5545 ICS/iCal feed."
+msgstr "Funciona com qualquer feed ICS/iCal RFC 5545."
+
+msgid "github.com/caio-hat/cinnamon-applet-next-meeting"
+msgstr "github.com/caio-hat/cinnamon-applet-next-meeting"
 
 msgid "Hidden Mode: shows only the remaining time (countdown), hides meeting name and time in panel. Useful for screen sharing or recording."
 msgstr "Modo Oculto: mostra apenas o tempo restante (contagem regressiva), oculta nome e horário da reunião na barra. Útil para compartilhamento ou gravação de tela."

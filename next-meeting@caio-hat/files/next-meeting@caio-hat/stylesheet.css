@@ -7,3 +7,9 @@
     font-weight: bold;
     color: rgba(255, 255, 255, 0.75);
 }
+
+/* Applied to the panel label while the marquee is scrolling, so the icon
+   next to it stays put and the text alignment is stable. */
+.next-meeting-marquee {
+    text-align: left;
+}

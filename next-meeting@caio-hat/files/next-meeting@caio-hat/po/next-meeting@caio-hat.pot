@@ -9,9 +9,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: next-meeting 2.3\n"
+"Project-Id-Version: next-meeting 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-16 00:00+0000\n"
+"POT-Creation-Date: 2026-05-18 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -228,6 +228,79 @@ msgid "Scroll speed (1=fast, 20=slow)"
 msgstr ""
 
 msgid "Show tentative meetings in popup"
+msgstr ""
+
+msgid "Show tentative meetings in panel (chronological order)"
+msgstr ""
+
+msgid "When ON, the panel shows the next meeting by time regardless of status. When OFF, only accepted meetings appear in the panel."
+msgstr ""
+
+# Help / Legend submenu
+msgid "Help / Legend"
+msgstr ""
+
+msgid "Status icons"
+msgstr ""
+
+msgid "Live meeting (in progress)"
+msgstr ""
+
+msgid "Accepted meeting (uses calendar color)"
+msgstr ""
+
+msgid "Tentative / pending response"
+msgstr ""
+
+msgid "Time conflict"
+msgstr ""
+
+msgid "Has join link — click the meeting to open in browser"
+msgstr ""
+
+msgid "Panel indicators"
+msgstr ""
+
+msgid "All today's meetings are done — next one is on another day"
+msgstr ""
+
+msgid "Hidden Mode — countdown only"
+msgstr ""
+
+msgid "Hidden Mode + no meetings in the next 7 days"
+msgstr ""
+
+msgid "Prefix on panel label marks an active time conflict"
+msgstr ""
+
+msgid "Tips"
+msgstr ""
+
+msgid "Click the applet to open this menu."
+msgstr ""
+
+msgid "Right-click → Configure → add an ICS/iCal URL (Google, Outlook, Apple, Nextcloud...)."
+msgstr ""
+
+msgid "Hidden Mode shows only the countdown — useful for screen sharing or recording."
+msgstr ""
+
+msgid "Marquee scrolls long meeting names in the panel without moving the icon."
+msgstr ""
+
+msgid "Tentative meetings: use 'Show tentative meetings in panel' to control panel behavior."
+msgstr ""
+
+msgid "Notifications fire before a meeting starts (configurable in Settings → Advanced)."
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "Works with any RFC 5545 ICS/iCal feed."
+msgstr ""
+
+msgid "github.com/caio-hat/cinnamon-applet-next-meeting"
 msgstr ""
 
 msgid "Hidden Mode: shows only the remaining time (countdown), hides meeting name and time in panel. Useful for screen sharing or recording."

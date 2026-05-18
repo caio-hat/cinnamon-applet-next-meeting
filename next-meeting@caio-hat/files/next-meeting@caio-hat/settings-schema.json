@@ -20,7 +20,7 @@
         "panel-section": {
             "type": "section",
             "title": "Panel and Popup",
-            "keys": ["show-in-panel", "label-max-chars", "timer-position", "marquee-enabled", "marquee-speed", "show-tentative"]
+            "keys": ["show-in-panel", "label-max-chars", "timer-position", "marquee-enabled", "marquee-speed", "show-tentative", "show-tentative-in-panel"]
         },
         "privacy-section": {
             "type": "section",
@@ -79,7 +79,7 @@
     },
     "marquee-speed": {
         "type": "spinbutton",
-        "default": 4,
+        "default": 2,
         "min": 1,
         "max": 20,
         "step": 1,
@@ -90,6 +90,12 @@
         "type": "switch",
         "default": true,
         "description": "Show tentative meetings in popup"
+    },
+    "show-tentative-in-panel": {
+        "type": "switch",
+        "default": true,
+        "description": "Show tentative meetings in panel (chronological order)",
+        "tooltip": "When ON, the panel shows the next meeting by time regardless of status. When OFF, only accepted meetings appear in the panel."
     },
     "hidden-mode": {
         "type": "switch",

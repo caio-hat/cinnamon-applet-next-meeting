@@ -2,7 +2,7 @@
   "uuid": "next-meeting@caio-hat",
   "name": "Next Meeting",
   "description": "Shows upcoming meetings from any ICS/iCal calendar URL in the Cinnamon panel. Works with Google Calendar, Outlook, Apple Calendar, Nextcloud, and any RFC 5545 feed.",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "max-instances": "1",
   "icon": "x-office-calendar",
   "contributors": "caio-hat",

@@ -64,6 +64,7 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         this.settings.bind("notify-conflicts", "notifyConflicts");
         this.settings.bind("refresh-interval", "refreshInterval", this._startRefreshTimer.bind(this));
         this.settings.bind("show-tentative",   "showTentative",   this._onShowTentativeChanged.bind(this));
+        this.settings.bind("show-tentative-in-panel", "showTentativeInPanel", this._onShowTentativeInPanelChanged.bind(this));
 
         this._migrateLegacyConfig();
 
@@ -145,6 +146,8 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         });
         this._menu.addMenuItem(this._tentativeSwitch);
 
+        this._buildHelpSubmenu();
+
         let refresh = new PopupMenu.PopupMenuItem(_("Refresh now"));
         refresh.connect("activate", () => this._fetchMeetings());
         this._menu.addMenuItem(refresh);
@@ -152,6 +155,45 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         let configure = new PopupMenu.PopupMenuItem(_("Settings"));
         configure.connect("activate", () => this._openSettings());
         this._menu.addMenuItem(configure);
+    }
+
+    _buildHelpSubmenu() {
+        let help = new PopupMenu.PopupSubMenuMenuItem(_("Help / Legend"));
+        this._menu.addMenuItem(help);
+
+        let line = (markup) => {
+            let item = new PopupMenu.PopupMenuItem("", { reactive: false });
+            item.label.clutter_text.set_line_wrap(true);
+            item.label.clutter_text.set_markup(markup);
+            help.menu.addMenuItem(item);
+        };
+        let header = (text) => line("<b>" + this._esc(text) + "</b>");
+        let plain  = (text) => line(this._esc(text));
+
+        header(_("Status icons"));
+        line("<span foreground=\"#f44336\" font_weight=\"bold\">◎</span>  " + this._esc(_("Live meeting (in progress)")));
+        line("<span foreground=\"#1e88e5\" font_weight=\"bold\">●</span>  " + this._esc(_("Accepted meeting (uses calendar color)")));
+        line("<span foreground=\"#ffa726\" font_weight=\"bold\">?</span>  " + this._esc(_("Tentative / pending response")));
+        line("<span foreground=\"#ff7043\" font_weight=\"bold\">⚠</span>  " + this._esc(_("Time conflict")));
+        line("🔗  " + this._esc(_("Has join link — click the meeting to open in browser")));
+
+        header(_("Panel indicators"));
+        line("✓  " + this._esc(_("All today's meetings are done — next one is on another day")));
+        line("⏱  " + this._esc(_("Hidden Mode — countdown only")));
+        line("—  " + this._esc(_("Hidden Mode + no meetings in the next 7 days")));
+        line("⚠  " + this._esc(_("Prefix on panel label marks an active time conflict")));
+
+        header(_("Tips"));
+        plain(_("Click the applet to open this menu."));
+        plain(_("Right-click → Configure → add an ICS/iCal URL (Google, Outlook, Apple, Nextcloud...)."));
+        plain(_("Hidden Mode shows only the countdown — useful for screen sharing or recording."));
+        plain(_("Marquee scrolls long meeting names in the panel without moving the icon."));
+        plain(_("Tentative meetings: use 'Show tentative meetings in panel' to control panel behavior."));
+        plain(_("Notifications fire before a meeting starts (configurable in Settings → Advanced)."));
+
+        header(_("About"));
+        plain(_("Works with any RFC 5545 ICS/iCal feed."));
+        line("<i>" + this._esc(_("github.com/caio-hat/cinnamon-applet-next-meeting")) + "</i>");
     }
 
     // xlet-settings argparse: instance_id is an optional FLAG --id, NOT a positional argument.
@@ -234,6 +276,7 @@ class NextMeetingApplet extends Applet.TextIconApplet {
     _onShowInPanelChanged()    { this._syncSwitch(this._showSwitch,      this.showInPanel);   this._updateDisplay(); }
     _onHiddenModeChanged()     { this._syncSwitch(this._hiddenSwitch,    this.hiddenMode);    this._updateDisplay(); }
     _onShowTentativeChanged()  { this._syncSwitch(this._tentativeSwitch, this.showTentative); this._renderMenu(); this._updateDisplay(); }
+    _onShowTentativeInPanelChanged() { this._renderMenu(); this._updateDisplay(); }
     _onMarqueeSpeedChanged()   { this._stopMarquee(); this._updateDisplay(); }
 
     _syncSwitch(sw, value) {
@@ -361,8 +404,9 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         let todayStr      = new Date().toDateString();
         let todayFuture   = future.filter(m => new Date(m.start).toDateString() === todayStr);
         let nextAccepted  = todayFuture.find(m => m.status !== "tentative") || null;
-        let nextTentative = todayFuture.find(m => m.status === "tentative") || null;
-        this._panelMeeting      = this._inProgress || nextAccepted || nextTentative;
+        let earliestToday = todayFuture[0] || null;
+        this._panelMeeting      = this._inProgress
+            || (this.showTentativeInPanel !== false ? earliestToday : nextAccepted);
         this._hasFutureMeetings = future.length > 0;
 
         this._conflictKeys = this._detectConflicts(this._inProgress ? [this._inProgress, ...future] : future);
@@ -468,9 +512,16 @@ class NextMeetingApplet extends Applet.TextIconApplet {
 
     // ── Marquee (scrolling panel label) ─────────────────────────────────────
     // Uses a stable label (no countdown) so the scroll doesn't reset every 30s.
+    // Locks panel-label min-width + monospace font while active so the icon
+    // doesn't shift as the proportional-width text scrolls.
     _startMarquee() {
         if (this._marqueeTimer) return;
-        let speedMs = Math.max(150, (this.marqueeSpeed || 4) * 100);
+        let speedMs = Math.max(80, (this.marqueeSpeed || 2) * 100);
+        if (this._applet_label) {
+            let approxPx = (this.labelMaxChars || 40) * 8;
+            this._applet_label.set_style("min-width: " + approxPx + "px; font-family: monospace;");
+            this._applet_label.add_style_class_name("next-meeting-marquee");
+        }
         this._marqueeTimer = Mainloop.timeout_add(speedMs, () => {
             this._tickMarquee();
             return GLib.SOURCE_CONTINUE;
@@ -481,6 +532,10 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         if (this._marqueeTimer) {
             Mainloop.source_remove(this._marqueeTimer);
             this._marqueeTimer = 0;
+        }
+        if (this._applet_label) {
+            this._applet_label.set_style(null);
+            this._applet_label.remove_style_class_name("next-meeting-marquee");
         }
         this._marqueeText   = "";
         this._marqueeOffset = 0;
