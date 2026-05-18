@@ -1,7 +1,7 @@
 {
     "layout": {
         "type": "layout",
-        "pages": ["main", "advanced"],
+        "pages": ["main", "advanced", "help"],
         "main": {
             "type": "page",
             "title": "General",
@@ -11,6 +11,11 @@
             "type": "page",
             "title": "Advanced",
             "sections": ["notifications-section", "refresh-section"]
+        },
+        "help": {
+            "type": "page",
+            "title": "Help",
+            "sections": ["help-icons-section", "help-panel-section", "help-tips-section", "help-about-section"]
         },
         "calendars-section": {
             "type": "section",
@@ -36,6 +41,26 @@
             "type": "section",
             "title": "Refresh",
             "keys": ["refresh-interval"]
+        },
+        "help-icons-section": {
+            "type": "section",
+            "title": "Status icons",
+            "keys": ["help-icon-live", "help-icon-accepted", "help-icon-tentative", "help-icon-conflict", "help-icon-link"]
+        },
+        "help-panel-section": {
+            "type": "section",
+            "title": "Panel indicators",
+            "keys": ["help-panel-check", "help-panel-clock", "help-panel-dash", "help-panel-warn"]
+        },
+        "help-tips-section": {
+            "type": "section",
+            "title": "Tips",
+            "keys": ["help-tip-click", "help-tip-add", "help-tip-hidden", "help-tip-marquee", "help-tip-notify"]
+        },
+        "help-about-section": {
+            "type": "section",
+            "title": "About",
+            "keys": ["help-about-feeds", "help-about-url"]
         }
     },
     "calendars": {
@@ -129,5 +154,69 @@
         "step": 1,
         "units": "minutes",
         "description": "Calendar refresh interval"
+    },
+    "help-icon-live": {
+        "type": "label",
+        "description": "◎  Live meeting in progress"
+    },
+    "help-icon-accepted": {
+        "type": "label",
+        "description": "●  Accepted meeting (uses calendar color)"
+    },
+    "help-icon-tentative": {
+        "type": "label",
+        "description": "?  Tentative / pending response"
+    },
+    "help-icon-conflict": {
+        "type": "label",
+        "description": "⚠  Time conflict between meetings"
+    },
+    "help-icon-link": {
+        "type": "label",
+        "description": "🔗  Has join link — click the meeting to open it"
+    },
+    "help-panel-check": {
+        "type": "label",
+        "description": "✓  All today's meetings are done — next one is on another day"
+    },
+    "help-panel-clock": {
+        "type": "label",
+        "description": "⏱  Hidden Mode countdown"
+    },
+    "help-panel-dash": {
+        "type": "label",
+        "description": "—  Hidden Mode with no meetings ahead"
+    },
+    "help-panel-warn": {
+        "type": "label",
+        "description": "⚠  Prefix on panel label marks an active time conflict"
+    },
+    "help-tip-click": {
+        "type": "label",
+        "description": "Click the applet to open the popup menu."
+    },
+    "help-tip-add": {
+        "type": "label",
+        "description": "Right-click the applet → Configure → add an ICS/iCal URL."
+    },
+    "help-tip-hidden": {
+        "type": "label",
+        "description": "Hidden Mode shows only the countdown — useful for screen sharing or recording."
+    },
+    "help-tip-marquee": {
+        "type": "label",
+        "description": "Marquee scrolls long meeting names without moving the icon."
+    },
+    "help-tip-notify": {
+        "type": "label",
+        "description": "Notifications fire before a meeting starts (configurable on the Advanced tab)."
+    },
+    "help-about-feeds": {
+        "type": "label",
+        "description": "Works with any RFC 5545 ICS/iCal feed: Google, Outlook, Apple, Nextcloud, Fastmail, Proton."
+    },
+    "help-about-url": {
+        "type": "label",
+        "description": "github.com/caio-hat/cinnamon-applet-next-meeting"
     }
 }

@@ -236,68 +236,65 @@ msgstr ""
 msgid "When ON, the panel shows the next meeting by time regardless of status. When OFF, only accepted meetings appear in the panel."
 msgstr ""
 
-# Help / Legend submenu
-msgid "Help / Legend"
+# Help page (Settings)
+msgid "Help"
 msgstr ""
 
 msgid "Status icons"
 msgstr ""
 
-msgid "Live meeting (in progress)"
-msgstr ""
-
-msgid "Accepted meeting (uses calendar color)"
-msgstr ""
-
-msgid "Tentative / pending response"
-msgstr ""
-
-msgid "Time conflict"
-msgstr ""
-
-msgid "Has join link — click the meeting to open in browser"
-msgstr ""
-
 msgid "Panel indicators"
-msgstr ""
-
-msgid "All today's meetings are done — next one is on another day"
-msgstr ""
-
-msgid "Hidden Mode — countdown only"
-msgstr ""
-
-msgid "Hidden Mode + no meetings in the next 7 days"
-msgstr ""
-
-msgid "Prefix on panel label marks an active time conflict"
 msgstr ""
 
 msgid "Tips"
 msgstr ""
 
-msgid "Click the applet to open this menu."
+msgid "About"
 msgstr ""
 
-msgid "Right-click → Configure → add an ICS/iCal URL (Google, Outlook, Apple, Nextcloud...)."
+msgid "◎  Live meeting in progress"
+msgstr ""
+
+msgid "●  Accepted meeting (uses calendar color)"
+msgstr ""
+
+msgid "?  Tentative / pending response"
+msgstr ""
+
+msgid "⚠  Time conflict between meetings"
+msgstr ""
+
+msgid "🔗  Has join link — click the meeting to open it"
+msgstr ""
+
+msgid "✓  All today's meetings are done — next one is on another day"
+msgstr ""
+
+msgid "⏱  Hidden Mode countdown"
+msgstr ""
+
+msgid "—  Hidden Mode with no meetings ahead"
+msgstr ""
+
+msgid "⚠  Prefix on panel label marks an active time conflict"
+msgstr ""
+
+msgid "Click the applet to open the popup menu."
+msgstr ""
+
+msgid "Right-click the applet → Configure → add an ICS/iCal URL."
 msgstr ""
 
 msgid "Hidden Mode shows only the countdown — useful for screen sharing or recording."
 msgstr ""
 
-msgid "Marquee scrolls long meeting names in the panel without moving the icon."
+msgid "Marquee scrolls long meeting names without moving the icon."
 msgstr ""
 
-msgid "Tentative meetings: use 'Show tentative meetings in panel' to control panel behavior."
+msgid "Notifications fire before a meeting starts (configurable on the Advanced tab)."
 msgstr ""
 
-msgid "Notifications fire before a meeting starts (configurable in Settings → Advanced)."
-msgstr ""
-
-msgid "About"
-msgstr ""
-
-msgid "Works with any RFC 5545 ICS/iCal feed."
+msgid "Works with any RFC 5545 ICS/iCal feed: Google, Outlook, Apple, Nextcloud, Fastmail, Proton."
 msgstr ""
 
 msgid "github.com/caio-hat/cinnamon-applet-next-meeting"

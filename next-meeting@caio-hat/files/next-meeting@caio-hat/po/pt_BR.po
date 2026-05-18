@@ -230,69 +230,66 @@ msgstr "Mostrar reuniões pendentes/tentativas na barra (ordem cronológica)"
 msgid "When ON, the panel shows the next meeting by time regardless of status. When OFF, only accepted meetings appear in the panel."
 msgstr "Quando ativo, a barra mostra a próxima reunião por horário, independente do status. Quando desativado, apenas reuniões aceitas aparecem na barra."
 
-# Help / Legend submenu
-msgid "Help / Legend"
-msgstr "Ajuda / Legenda"
+# Help page (Settings)
+msgid "Help"
+msgstr "Ajuda"
 
 msgid "Status icons"
 msgstr "Ícones de status"
 
-msgid "Live meeting (in progress)"
-msgstr "Reunião em andamento"
-
-msgid "Accepted meeting (uses calendar color)"
-msgstr "Reunião aceita (usa a cor do calendário)"
-
-msgid "Tentative / pending response"
-msgstr "Pendente / aguardando resposta"
-
-msgid "Time conflict"
-msgstr "Conflito de horário"
-
-msgid "Has join link — click the meeting to open in browser"
-msgstr "Possui link da reunião — clique para abrir no navegador"
-
 msgid "Panel indicators"
 msgstr "Indicadores na barra"
-
-msgid "All today's meetings are done — next one is on another day"
-msgstr "Reuniões de hoje concluídas — próxima é em outro dia"
-
-msgid "Hidden Mode — countdown only"
-msgstr "Modo Oculto — apenas contagem regressiva"
-
-msgid "Hidden Mode + no meetings in the next 7 days"
-msgstr "Modo Oculto + sem reuniões nos próximos 7 dias"
-
-msgid "Prefix on panel label marks an active time conflict"
-msgstr "Prefixo na barra indica conflito de horário ativo"
 
 msgid "Tips"
 msgstr "Dicas"
 
-msgid "Click the applet to open this menu."
-msgstr "Clique no applet para abrir este menu."
-
-msgid "Right-click → Configure → add an ICS/iCal URL (Google, Outlook, Apple, Nextcloud...)."
-msgstr "Clique direito → Configurar → adicionar URL ICS/iCal (Google, Outlook, Apple, Nextcloud...)."
-
-msgid "Hidden Mode shows only the countdown — useful for screen sharing or recording."
-msgstr "Modo Oculto mostra apenas a contagem regressiva — útil para compartilhamento ou gravação de tela."
-
-msgid "Marquee scrolls long meeting names in the panel without moving the icon."
-msgstr "O Marquee rola nomes longos de reuniões na barra sem mover o ícone."
-
-msgid "Tentative meetings: use 'Show tentative meetings in panel' to control panel behavior."
-msgstr "Reuniões pendentes: use 'Mostrar reuniões pendentes na barra' para controlar a exibição."
-
-msgid "Notifications fire before a meeting starts (configurable in Settings → Advanced)."
-msgstr "As notificações aparecem antes da reunião começar (configurável em Configurações → Avançado)."
-
 msgid "About"
 msgstr "Sobre"
 
-msgid "Works with any RFC 5545 ICS/iCal feed."
-msgstr "Funciona com qualquer feed ICS/iCal RFC 5545."
+msgid "◎  Live meeting in progress"
+msgstr "◎  Reunião em andamento"
+
+msgid "●  Accepted meeting (uses calendar color)"
+msgstr "●  Reunião aceita (usa a cor do calendário)"
+
+msgid "?  Tentative / pending response"
+msgstr "?  Pendente / aguardando resposta"
+
+msgid "⚠  Time conflict between meetings"
+msgstr "⚠  Conflito de horário entre reuniões"
+
+msgid "🔗  Has join link — click the meeting to open it"
+msgstr "🔗  Possui link de entrada — clique na reunião para abrir"
+
+msgid "✓  All today's meetings are done — next one is on another day"
+msgstr "✓  Reuniões de hoje concluídas — próxima é em outro dia"
+
+msgid "⏱  Hidden Mode countdown"
+msgstr "⏱  Contagem regressiva no Modo Oculto"
+
+msgid "—  Hidden Mode with no meetings ahead"
+msgstr "—  Modo Oculto sem reuniões à frente"
+
+msgid "⚠  Prefix on panel label marks an active time conflict"
+msgstr "⚠  Prefixo na barra indica conflito de horário ativo"
+
+msgid "Click the applet to open the popup menu."
+msgstr "Clique no applet para abrir o menu pop-up."
+
+msgid "Right-click the applet → Configure → add an ICS/iCal URL."
+msgstr "Clique direito no applet → Configurar → adicione uma URL ICS/iCal."
+
+msgid "Hidden Mode shows only the countdown — useful for screen sharing or recording."
+msgstr "O Modo Oculto mostra apenas a contagem regressiva — útil para compartilhamento ou gravação de tela."
+
+msgid "Marquee scrolls long meeting names without moving the icon."
+msgstr "O Marquee rola nomes longos sem mover o ícone."
+
+msgid "Notifications fire before a meeting starts (configurable on the Advanced tab)."
+msgstr "As notificações disparam antes da reunião começar (configurável na aba Avançado)."
+
+msgid "Works with any RFC 5545 ICS/iCal feed: Google, Outlook, Apple, Nextcloud, Fastmail, Proton."
+msgstr "Funciona com qualquer feed ICS/iCal RFC 5545: Google, Outlook, Apple, Nextcloud, Fastmail, Proton."
 
 msgid "github.com/caio-hat/cinnamon-applet-next-meeting"
 msgstr "github.com/caio-hat/cinnamon-applet-next-meeting"
