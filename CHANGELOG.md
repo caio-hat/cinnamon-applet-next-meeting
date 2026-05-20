@@ -4,6 +4,11 @@ All notable changes to **Next Meeting** are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/).
 
+## [2.5.2] — 2026-05-19
+
+### Fixed
+- Marquee text now advances on every tick instead of waiting for a hover-triggered repaint. The tick handler uses `clutter_text.set_x(-px)` plus explicit `queue_redraw()` on the text and the parent St.Label, so the panel paints at every frame regardless of pointer activity.
+
 ## [2.5.1] — 2026-05-19
 
 ### Changed

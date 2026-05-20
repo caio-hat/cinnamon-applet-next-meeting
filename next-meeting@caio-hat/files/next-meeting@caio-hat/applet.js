@@ -606,8 +606,10 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         }
         if (this._applet_label) {
             if (this._applet_label.clutter_text) {
-                try { this._applet_label.clutter_text.set_translation(0, 0, 0); }
-                catch (_e) { /* ignore */ }
+                try {
+                    this._applet_label.clutter_text.set_x(0);
+                    this._applet_label.clutter_text.set_translation(0, 0, 0);
+                } catch (_e) { /* ignore */ }
             }
             this._applet_label.set_style(null);
             this._applet_label.remove_style_class_name("next-meeting-marquee");
@@ -624,7 +626,12 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         if (!this._applet_label || !this._applet_label.clutter_text) return;
         this._marqueePxOffset = (this._marqueePxOffset + step) % this._marqueeCopyWidth;
         try {
-            this._applet_label.clutter_text.set_translation(-this._marqueePxOffset, 0, 0);
+            // Use clutter_text.set_anchor_point + set_x for reliable
+            // per-frame paint (set_translation alone can defer redraw
+            // until the actor is otherwise invalidated, e.g. on hover).
+            this._applet_label.clutter_text.set_x(-this._marqueePxOffset);
+            this._applet_label.clutter_text.queue_redraw();
+            this._applet_label.queue_redraw();
         } catch (_e) { /* ignore */ }
     }
     // ────────────────────────────────────────────────────────────────────────
