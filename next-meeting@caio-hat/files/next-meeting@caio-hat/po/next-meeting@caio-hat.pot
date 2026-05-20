@@ -9,9 +9,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: next-meeting 2.4\n"
+"Project-Id-Version: next-meeting 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-18 00:00+0000\n"
+"POT-Creation-Date: 2026-05-19 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -298,6 +298,31 @@ msgid "Works with any RFC 5545 ICS/iCal feed: Google, Outlook, Apple, Nextcloud,
 msgstr ""
 
 msgid "github.com/caio-hat/cinnamon-applet-next-meeting"
+msgstr ""
+
+# v2.5 — all-day events, snooze, hide-subject
+msgid "All day"
+msgstr ""
+
+msgid "Snooze 5 min"
+msgstr ""
+
+msgid "Snooze 15 min"
+msgstr ""
+
+msgid "Dismiss"
+msgstr ""
+
+msgid "Hide meeting subject (show only time + countdown)"
+msgstr ""
+
+msgid "Less drastic than Hidden Mode. Useful when you want to keep timing visible but hide names from screen sharing."
+msgstr ""
+
+msgid "Hide subject (show time only)"
+msgstr ""
+
+msgid "Subject hidden — click the icon to see details"
 msgstr ""
 
 msgid "Hidden Mode: shows only the remaining time (countdown), hides meeting name and time in panel. Useful for screen sharing or recording."

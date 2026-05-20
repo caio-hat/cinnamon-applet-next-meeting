@@ -9,12 +9,18 @@ Works with **any standard ICS/iCal URL** — Google Calendar, Outlook, Apple Cal
 - Shows your next meeting (today only) in the Cinnamon panel
 - `✓` minimalist icon when today's meetings are done — never shows next-day meetings
 - In-progress indicator with elapsed time
+- All-day events appear in the popup with a `◼` badge — never pollute the panel
 - Configurable timer position: before or after the meeting name
-- Marquee / scrolling text for long meeting names
+- Marquee / scrolling text for long meeting names (icon stays put)
 - Multi-calendar support with per-calendar color
 - Tentative meeting detection (via `X-MICROSOFT-CDO-BUSYSTATUS`)
 - Time conflict detection and notifications
-- Privacy modes: **Hidden Mode** (countdown only) and **No Display** (icon only)
+- Snooze notifications (5 / 15 min) directly from the desktop notification
+- Privacy modes:
+  - **Hidden Mode** — countdown only
+  - **Hide subject** — keep the time visible, hide meeting names
+  - **No Display** — icon only
+- Multiple panel instances (e.g. one for work, one for personal)
 - Auto-detected i18n (English source, Brazilian Portuguese translation included)
 - Desktop notifications before meetings start
 

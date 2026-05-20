@@ -43,6 +43,10 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         this._conflictKeys      = new Set();
         this._notifiedIds       = new Set();
         this._notifiedConflicts = new Set();
+        this._snoozeUntil       = {};   // meetingKey → unix ms; suppress notify until then
+        this._pendingNotifs     = {};   // dbus notification id → meetingKey
+        this._notifSignalId     = 0;    // ActionInvoked signal subscription
+        this._notifProxy        = null; // org.freedesktop.Notifications proxy
         this._lastError         = null;
         this._suppressToggle    = false;
         this._refreshTimer      = 0;
@@ -65,8 +69,10 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         this.settings.bind("refresh-interval", "refreshInterval", this._startRefreshTimer.bind(this));
         this.settings.bind("show-tentative",   "showTentative",   this._onShowTentativeChanged.bind(this));
         this.settings.bind("show-tentative-in-panel", "showTentativeInPanel", this._onShowTentativeInPanelChanged.bind(this));
+        this.settings.bind("hide-subject",     "hideSubject",     this._onHideSubjectChanged.bind(this));
 
         this._migrateLegacyConfig();
+        this._setupNotifications();
 
         this.set_applet_icon_symbolic_name("x-office-calendar");
         this.set_applet_label(_("%s").replace("%s", "..."));
@@ -126,6 +132,15 @@ class NextMeetingApplet extends Applet.TextIconApplet {
             this._updateDisplay();
         });
         this._menu.addMenuItem(this._hiddenSwitch);
+
+        this._hideSubjectSwitch = new PopupMenu.PopupSwitchMenuItem(_("Hide subject (show time only)"), this.hideSubject === true);
+        this._hideSubjectSwitch.connect("toggled", (item, state) => {
+            if (this._suppressToggle || state === this.hideSubject) return;
+            this.hideSubject = state;
+            this.settings.setValue("hide-subject", state);
+            this._updateDisplay();
+        });
+        this._menu.addMenuItem(this._hideSubjectSwitch);
 
         this._showSwitch = new PopupMenu.PopupSwitchMenuItem(_("Show text in panel"), this.showInPanel !== false);
         this._showSwitch.connect("toggled", (item, state) => {
@@ -236,6 +251,7 @@ class NextMeetingApplet extends Applet.TextIconApplet {
     _onHiddenModeChanged()     { this._syncSwitch(this._hiddenSwitch,    this.hiddenMode);    this._updateDisplay(); }
     _onShowTentativeChanged()  { this._syncSwitch(this._tentativeSwitch, this.showTentative); this._renderMenu(); this._updateDisplay(); }
     _onShowTentativeInPanelChanged() { this._renderMenu(); this._updateDisplay(); }
+    _onHideSubjectChanged()    { this._syncSwitch(this._hideSubjectSwitch, this.hideSubject); this._updateDisplay(); }
     _onMarqueeSpeedChanged()   { this._stopMarquee(); this._updateDisplay(); }
 
     _syncSwitch(sw, value) {
@@ -332,6 +348,7 @@ class NextMeetingApplet extends Applet.TextIconApplet {
             for (let j = i + 1; j < meetings.length; j++) {
                 let a = meetings[i], b = meetings[j];
                 if (a.status === "free" || b.status === "free") continue;
+                if (a.is_all_day || b.is_all_day) continue;
                 let aS = new Date(a.start).getTime(), aE = a.end ? new Date(a.end).getTime() : aS + 30 * 60 * 1000;
                 let bS = new Date(b.start).getTime(), bE = b.end ? new Date(b.end).getTime() : bS + 30 * 60 * 1000;
                 if (aS < bE && bS < aE) { keys.add(this._mkey(a)); keys.add(this._mkey(b)); }
@@ -340,15 +357,37 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         return keys;
     }
 
+    _todayDateStr() {
+        let d = new Date();
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+    _addDaysStr(daysFromToday) {
+        let d = new Date();
+        d.setDate(d.getDate() + daysFromToday);
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+
     _renderMenu() {
         let now  = Date.now();
         let h24  = now + 24 * 3600 * 1000;
         let h72  = now + 3 * 24 * 3600 * 1000;
         let h168 = now + 7 * 24 * 3600 * 1000;
+        let todayDateStr = this._todayDateStr();
+        let date3Str     = this._addDaysStr(3);
+        let date7Str     = this._addDaysStr(7);
 
         this._inProgress = null;
         let future = [];
+        let futureAllDay = [];
         for (let m of this._allMeetings) {
+            if (m.is_all_day) {
+                // m.start / m.end are "YYYY-MM-DD" (inclusive end). Keep if end >= today.
+                let endDate = m.end || m.start;
+                if (endDate < todayDateStr) continue;
+                if (m.start > date7Str) continue;
+                futureAllDay.push(m);
+                continue;
+            }
             let s = new Date(m.start).getTime();
             let e = m.end ? new Date(m.end).getTime() : s + 30 * 60 * 1000;
             if (e <= now) continue;
@@ -356,10 +395,12 @@ class NextMeetingApplet extends Applet.TextIconApplet {
             else if (s <= h168)      { future.push(m); }
         }
 
-        this._nextMeeting = this._inProgress || (future.length > 0 ? future[0] : null);
+        // _nextMeeting prefers timed (countdownable); falls back to all-day so popup header isn't empty.
+        this._nextMeeting = this._inProgress
+            || (future.length > 0 ? future[0] : null)
+            || (futureAllDay.length > 0 ? futureAllDay[0] : null);
 
-        // Panel only shows today's meetings — never shows next-day meetings.
-        // When today's meetings are done, _panelMeeting = null → panel shows ✓.
+        // Panel only shows today's TIMED meetings — never all-day, never next-day.
         let todayStr      = new Date().toDateString();
         let todayFuture   = future.filter(m => new Date(m.start).toDateString() === todayStr);
         let nextAccepted  = todayFuture.find(m => m.status !== "tentative") || null;
@@ -378,13 +419,22 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         let b3d = future.filter(m => { let s = new Date(m.start).getTime(); return s > h24 && s <= h72  && show(m); });
         let b7d = future.filter(m => { let s = new Date(m.start).getTime(); return s > h72  && s <= h168 && show(m); });
 
-        this._sub24.label.set_text(_("Next 24 hours") + " (" + b24.length + ")");
-        this._sub3d.label.set_text(_("Next 3 days")   + " (" + b3d.length + ")");
-        this._sub7d.label.set_text(_("Next 7 days")   + " (" + b7d.length + ")");
+        // All-day events: prepend per bucket by start date.
+        let ad24 = futureAllDay.filter(m => m.start <= todayDateStr && show(m));
+        let ad3d = futureAllDay.filter(m => m.start > todayDateStr && m.start <= date3Str && show(m));
+        let ad7d = futureAllDay.filter(m => m.start > date3Str   && m.start <= date7Str && show(m));
 
-        this._fillSection(this._sub24, b24, false, this._conflictKeys);
-        this._fillSection(this._sub3d, b3d, true,  this._conflictKeys);
-        this._fillSection(this._sub7d, b7d, true,  this._conflictKeys);
+        let totals24 = b24.length + ad24.length;
+        let totals3d = b3d.length + ad3d.length;
+        let totals7d = b7d.length + ad7d.length;
+
+        this._sub24.label.set_text(_("Next 24 hours") + " (" + totals24 + ")");
+        this._sub3d.label.set_text(_("Next 3 days")   + " (" + totals3d + ")");
+        this._sub7d.label.set_text(_("Next 7 days")   + " (" + totals7d + ")");
+
+        this._fillSection(this._sub24, ad24.concat(b24), false, this._conflictKeys);
+        this._fillSection(this._sub3d, ad3d.concat(b3d), true,  this._conflictKeys);
+        this._fillSection(this._sub7d, ad7d.concat(b7d), true,  this._conflictKeys);
     }
 
     _updateNextItem() {
@@ -393,11 +443,25 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         if (!m) { this._nextItem.label.set_text(_("No meetings in the next 7 days")); return; }
 
         let now     = Date.now();
-        let startMs = new Date(m.start).getTime();
-        let isLive  = !!(this._inProgress && this._inProgress.start === m.start);
         let color   = this._color(m.calendar_color);
         let isConflict = this._conflictKeys.has(this._mkey(m));
 
+        if (m.is_all_day) {
+            let dotColor = m.status === "tentative" ? "#ffa726" : color;
+            let dayLabel = (m.end && m.end !== m.start)
+                ? this._fmtAllDayRange(m.start, m.end)
+                : _("All day");
+            let markup =
+                "<span foreground=\"" + dotColor + "\" font_weight=\"bold\">◼</span> " +
+                "<b>" + this._esc(m.subject) + "</b>" +
+                (m.status === "tentative" ? "  <small><i>" + this._esc(_("(tentative)")) + "</i></small>" : "") +
+                "\n<small>" + this._esc(dayLabel) + "</small>";
+            this._nextItem.label.clutter_text.set_markup(markup);
+            return;
+        }
+
+        let startMs = new Date(m.start).getTime();
+        let isLive  = !!(this._inProgress && this._inProgress.start === m.start);
         let dot      = isLive ? "◎" : (m.status === "tentative" ? "?" : "●");
         let dotColor = isLive ? "#f44336" : (m.status === "tentative" ? "#ffa726" : color);
 
@@ -418,6 +482,14 @@ class NextMeetingApplet extends Applet.TextIconApplet {
             (m.status === "tentative" ? "  <small><i>" + this._esc(_("(tentative)")) + "</i></small>" : "") +
             "\n<small>" + this._esc(line2) + "</small>";
         this._nextItem.label.clutter_text.set_markup(markup);
+    }
+
+    _fmtAllDayRange(startDate, endDate) {
+        // YYYY-MM-DD inputs
+        let s = new Date(startDate + "T00:00:00");
+        let e = new Date(endDate + "T00:00:00");
+        let opts = { day: "2-digit", month: "2-digit" };
+        return _("All day") + " (" + s.toLocaleDateString(undefined, opts) + " → " + e.toLocaleDateString(undefined, opts) + ")";
     }
 
     _fillSection(section, meetings, groupByDay, conflictKeys) {
@@ -442,19 +514,37 @@ class NextMeetingApplet extends Applet.TextIconApplet {
     }
 
     _buildMeetingItem(m, conflictKeys) {
+        let item = new PopupMenu.PopupMenuItem("");
+        let color = this._color(m.calendar_color);
+
+        if (m.is_all_day) {
+            let dotColor = m.status === "tentative" ? "#ffa726" : color;
+            let line = "<span foreground=\"" + dotColor + "\">◼</span>  ";
+            line += "<b>" + this._esc(_("All day")) + "</b>  ";
+            line += this._esc(m.subject);
+            if (m.end && m.end !== m.start) {
+                let s = new Date(m.start + "T00:00:00");
+                let e = new Date(m.end   + "T00:00:00");
+                let opts = { day: "2-digit", month: "2-digit" };
+                line += "  <small>" + this._esc("(" + s.toLocaleDateString(undefined, opts) + " → " + e.toLocaleDateString(undefined, opts) + ")") + "</small>";
+            }
+            if (m.status === "tentative") line += "  <small><i>" + this._esc(_("(tentative)")) + "</i></small>";
+            if (m.location) line += "  <small>· " + this._esc(m.location) + "</small>";
+            item.label.clutter_text.set_markup(line);
+            return item;
+        }
+
         let now     = Date.now();
         let startMs = new Date(m.start).getTime();
         let endMs   = m.end ? new Date(m.end).getTime() : startMs + 30 * 60 * 1000;
         let isLive  = startMs <= now && now < endMs;
         let hasConflict = conflictKeys && conflictKeys.has(this._mkey(m));
 
-        let color = this._color(m.calendar_color);
         let dot, dotColor;
         if (isLive)                        { dot = "◎"; dotColor = "#f44336"; }
         else if (m.status === "tentative") { dot = "?";      dotColor = "#ffa726"; }
         else                               { dot = "●"; dotColor = color;     }
 
-        let item = new PopupMenu.PopupMenuItem("");
         let line = "";
         if (hasConflict) line += "<span foreground=\"#ff7043\" font_weight=\"bold\">⚠ </span>";
         line += "<span foreground=\"" + dotColor + "\">" + dot + "</span>  ";
@@ -570,6 +660,24 @@ class NextMeetingApplet extends Applet.TextIconApplet {
             return;
         }
 
+        if (this.hideSubject) {
+            this._stopMarquee();
+            let label;
+            if (live) {
+                let mins = Math.round((Date.now() - new Date(live.start).getTime()) / 60000);
+                let endStr = live.end ? this._fmtTime(live.end) : "?";
+                label = "◎ " + _f("%d min ago", mins) + "  · " + endStr;
+            } else {
+                label = this._fmtTime(m.start) + "  " + this._countdown(m.start);
+            }
+            if (this._conflictKeys.has(this._mkey(live || m))) label = "⚠ " + label;
+            let max = this.labelMaxChars || 40;
+            if (label.length > max) label = label.slice(0, Math.max(1, max - 1)) + "…";
+            this.set_applet_label(label);
+            this.set_applet_tooltip(_("Subject hidden — click the icon to see details"));
+            return;
+        }
+
         // Build tooltip with full details + countdown
         let tooltip;
         if (live) {
@@ -630,12 +738,78 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         this.set_applet_label(label);
     }
 
+    // ── Notifications: D-Bus org.freedesktop.Notifications with action buttons ─
+    _setupNotifications() {
+        try {
+            this._notifProxy = Gio.DBusProxy.new_for_bus_sync(
+                Gio.BusType.SESSION,
+                Gio.DBusProxyFlags.NONE,
+                null,
+                "org.freedesktop.Notifications",
+                "/org/freedesktop/Notifications",
+                "org.freedesktop.Notifications",
+                null
+            );
+            this._notifSignalId = this._notifProxy.get_connection().signal_subscribe(
+                "org.freedesktop.Notifications",
+                "org.freedesktop.Notifications",
+                "ActionInvoked",
+                "/org/freedesktop/Notifications",
+                null,
+                Gio.DBusSignalFlags.NONE,
+                (conn, sender, path, iface, signal, params) => {
+                    let [notifId, actionId] = params.deep_unpack();
+                    this._handleNotifAction(notifId, actionId);
+                }
+            );
+        } catch (e) {
+            global.logError("[" + UUID + "] D-Bus notify setup failed: " + e);
+            this._notifProxy = null;
+        }
+    }
+
+    _notify(title, body, urgency, actions, meetingKey) {
+        let icon = urgency === "critical" ? "appointment-missed" : "x-office-calendar";
+        if (this._notifProxy) {
+            try {
+                let hints = { "urgency": new GLib.Variant("y", urgency === "critical" ? 2 : 1) };
+                let params = new GLib.Variant("(susssasa{sv}i)", [
+                    "Next Meeting", 0, icon, title, body, actions || [], hints, -1
+                ]);
+                let res = this._notifProxy.call_sync("Notify", params, Gio.DBusCallFlags.NONE, -1, null);
+                let id = res.deep_unpack()[0];
+                if (meetingKey) this._pendingNotifs[id] = meetingKey;
+                return;
+            } catch (e) {
+                global.logError("[" + UUID + "] D-Bus Notify failed: " + e);
+            }
+        }
+        let urgencyArg = urgency === "critical" ? "--urgency=critical" : "--urgency=normal";
+        Util.spawn(["notify-send", "--icon=" + icon, urgencyArg, "--app-name=Next Meeting", title, body]);
+    }
+
+    _handleNotifAction(notifId, actionId) {
+        let key = this._pendingNotifs[notifId];
+        if (!key) return;
+        delete this._pendingNotifs[notifId];
+        let mins = 0;
+        if      (actionId === "snooze-5")  mins = 5;
+        else if (actionId === "snooze-15") mins = 15;
+        if (mins > 0) {
+            this._snoozeUntil[key] = Date.now() + mins * 60 * 1000;
+            this._notifiedIds.delete(key);
+            global.log("[" + UUID + "] snoozed " + key + " for " + mins + " min");
+        }
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     _checkUpcomingNotification() {
         if (!this.notifyEnabled || this._inProgress) return;
         let m = this._panelMeeting;
         if (!m) return;
         let key = this._mkey(m);
         if (this._notifiedIds.has(key)) return;
+        if (Date.now() < (this._snoozeUntil[key] || 0)) return;
         let diff   = new Date(m.start).getTime() - Date.now();
         let window = (this.notifyBefore || 30) * 60 * 1000 + 60 * 1000;
         if (diff > 0 && diff <= window) {
@@ -643,8 +817,12 @@ class NextMeetingApplet extends Applet.TextIconApplet {
             let title = _np("Meeting in %d minute", "Meeting in %d minutes", mins);
             let body  = (m.status === "tentative" ? _("[TENTATIVE]") + " " : "") + m.subject + "\n" + this._fmtFull(m.start);
             if (m.location) body += "\n" + m.location;
-            Util.spawn(["notify-send", "--icon=x-office-calendar", "--urgency=normal",
-                        "--app-name=Next Meeting", title, body]);
+            let actions = [
+                "snooze-5",  _("Snooze 5 min"),
+                "snooze-15", _("Snooze 15 min"),
+                "dismiss",   _("Dismiss"),
+            ];
+            this._notify(title, body, "normal", actions, key);
             this._notifiedIds.add(key);
         }
     }
@@ -662,8 +840,7 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         let title = "⚠ " + _f("Conflict: %d meetings at the same time", upcoming.length);
         let body  = upcoming.map(m => (m.status === "tentative" ? "? " : "● ") +
                                        m.subject + "  " + this._fmtTime(m.start)).join("\n");
-        Util.spawn(["notify-send", "--icon=appointment-missed", "--urgency=critical",
-                    "--app-name=Next Meeting", title, body]);
+        this._notify(title, body, "critical", null, null);
         this._notifiedConflicts.add(gKey);
     }
 
@@ -671,6 +848,11 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         if (this._refreshTimer) { Mainloop.source_remove(this._refreshTimer); this._refreshTimer = 0; }
         if (this._notifyTimer)  { Mainloop.source_remove(this._notifyTimer);  this._notifyTimer  = 0; }
         this._stopMarquee();
+        if (this._notifSignalId && this._notifProxy) {
+            try { this._notifProxy.get_connection().signal_unsubscribe(this._notifSignalId); }
+            catch (_e) { /* ignore */ }
+            this._notifSignalId = 0;
+        }
         if (this.settings) this.settings.finalize();
     }
 }

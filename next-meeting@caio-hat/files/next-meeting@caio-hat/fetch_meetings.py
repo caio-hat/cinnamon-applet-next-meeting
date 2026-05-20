@@ -9,10 +9,14 @@ Reads JSON array of calendars from stdin:
 
 Outputs JSON to stdout:
   {"meetings": [{"subject", "start", "end", "location", "join_url",
-                  "status",  "calendar_name", "calendar_color", "uid"}, ...]}
+                  "status", "is_all_day", "calendar_name", "calendar_color",
+                  "uid"}, ...]}
   or {"error": "..."}
 
 status values: "accepted" | "tentative" | "free"
+
+is_all_day: bool. When true, "start" and "end" are ISO dates ("YYYY-MM-DD")
+            and the event spans whole days (no time component).
 
 Translations: gettext domain "next-meeting@caio-hat" loaded from
 ~/.local/share/locale. See po/next-meeting@caio-hat.pot.
@@ -73,7 +77,7 @@ def _extract_join_url(*texts):
 
 def _fetch_ics(url, timeout=20):
     req = urllib.request.Request(url)
-    req.add_header("User-Agent", "NextMeetingCinnamonApplet/2.3")
+    req.add_header("User-Agent", "NextMeetingCinnamonApplet/2.5")
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
 
@@ -106,6 +110,11 @@ def _event_status_builtin(get_fn):
     return "accepted"
 
 
+def _is_all_day(dt):
+    """True iff dt is a plain datetime.date (no time component)."""
+    return isinstance(dt, date) and not isinstance(dt, datetime)
+
+
 def _parse_icalendar(ics_bytes, calendar, now, window_end):
     from icalendar import Calendar
     cal = Calendar.from_ical(ics_bytes)
@@ -118,34 +127,59 @@ def _parse_icalendar(ics_bytes, calendar, now, window_end):
         components = list(cal.walk("VEVENT"))
         recurring_ok = False
 
+    today = now.date()
+    window_end_date = window_end.date()
+
     events = []
     for component in components:
         if str(component.get("STATUS", "")).upper() == "CANCELLED":
             continue
         dtstart = component.get("DTSTART")
-        if not dtstart or not isinstance(dtstart.dt, datetime):
+        if not dtstart:
             continue
-        start_dt = _to_utc(dtstart.dt)
-        dtend = component.get("DTEND")
-        end_dt = _to_utc(dtend.dt) if dtend else None
-        if start_dt > window_end:
-            continue
-        if end_dt and end_dt <= now:
-            continue
-        if not end_dt and start_dt + timedelta(minutes=30) <= now:
-            continue
+
+        is_all_day = _is_all_day(dtstart.dt)
+
+        if is_all_day:
+            start_date = dtstart.dt
+            dtend = component.get("DTEND")
+            # iCal all-day DTEND is exclusive (the day AFTER the last day).
+            # We store inclusive end = DTEND - 1 day, or start_date if missing.
+            if dtend and _is_all_day(dtend.dt):
+                end_date = dtend.dt - timedelta(days=1)
+            else:
+                end_date = start_date
+            if end_date < today or start_date > window_end_date:
+                continue
+            start_iso = start_date.isoformat()
+            end_iso = end_date.isoformat()
+            uid_suffix = start_iso
+        else:
+            start_dt = _to_utc(dtstart.dt)
+            dtend = component.get("DTEND")
+            end_dt = _to_utc(dtend.dt) if dtend else None
+            if start_dt > window_end:
+                continue
+            if end_dt and end_dt <= now:
+                continue
+            if not end_dt and start_dt + timedelta(minutes=30) <= now:
+                continue
+            start_iso = start_dt.isoformat().replace("+00:00", "Z")
+            end_iso = end_dt.isoformat().replace("+00:00", "Z") if end_dt else ""
+            uid_suffix = start_dt.isoformat()
 
         desc = str(component.get("DESCRIPTION", "") or "")
         loc  = str(component.get("LOCATION", "") or "").replace("\\n", " ").replace("\n", " ").strip()
 
         events.append({
-            "uid":            str(component.get("UID", "")) + "@" + start_dt.isoformat(),
+            "uid":            str(component.get("UID", "")) + "@" + uid_suffix,
             "subject":        str(component.get("SUMMARY", "") or _("Untitled")),
-            "start":          start_dt.isoformat().replace("+00:00", "Z"),
-            "end":            end_dt.isoformat().replace("+00:00", "Z") if end_dt else "",
+            "start":          start_iso,
+            "end":            end_iso,
             "location":       loc,
             "join_url":       _extract_join_url(desc, loc),
             "status":         _event_status_icalendar(component),
+            "is_all_day":     is_all_day,
             "calendar_name":  calendar.get("name", ""),
             "calendar_color": calendar.get("color", "#1e88e5"),
         })
@@ -157,6 +191,8 @@ def _parse_builtin(ics_bytes, calendar, now, window_end):
     text = re.sub(r"\r?\n[ \t]", "", text)
     events = []
     has_rrule = False
+    today = now.date()
+    window_end_date = window_end.date()
 
     for block in re.split(r"BEGIN:VEVENT", text)[1:]:
         block = block.split("END:VEVENT")[0]
@@ -173,8 +209,15 @@ def _parse_builtin(ics_bytes, calendar, now, window_end):
 
         raw_start = get("DTSTART")
         raw_end   = get("DTEND")
-        if not raw_start or len(raw_start) == 8:
+        if not raw_start:
             continue
+
+        def parse_date_only(s):
+            s = re.sub(r"[^0-9]", "", s)
+            try:
+                return datetime.strptime(s, "%Y%m%d").date()
+            except ValueError:
+                return None
 
         def parse_dt(s):
             s = s.rstrip("Z")
@@ -184,24 +227,48 @@ def _parse_builtin(ics_bytes, calendar, now, window_end):
             except ValueError:
                 return None
 
-        start_dt = parse_dt(raw_start)
-        end_dt   = parse_dt(raw_end) if raw_end else None
-        if not start_dt or start_dt > window_end:
-            continue
-        if end_dt and end_dt <= now:
-            continue
+        # Detect VALUE=DATE (all-day): DTSTART of 8 digits (YYYYMMDD).
+        clean_start = re.sub(r"[^0-9T]", "", raw_start.rstrip("Z"))
+        is_all_day = len(clean_start) == 8
+
+        if is_all_day:
+            start_date = parse_date_only(raw_start)
+            end_date = parse_date_only(raw_end) if raw_end else None
+            if not start_date:
+                continue
+            # iCal exclusive DTEND for dates → store inclusive end
+            if end_date:
+                end_date = end_date - timedelta(days=1)
+            else:
+                end_date = start_date
+            if end_date < today or start_date > window_end_date:
+                continue
+            start_iso = start_date.isoformat()
+            end_iso = end_date.isoformat()
+            uid_suffix = start_iso
+        else:
+            start_dt = parse_dt(raw_start)
+            end_dt   = parse_dt(raw_end) if raw_end else None
+            if not start_dt or start_dt > window_end:
+                continue
+            if end_dt and end_dt <= now:
+                continue
+            start_iso = start_dt.isoformat().replace("+00:00", "Z")
+            end_iso = end_dt.isoformat().replace("+00:00", "Z") if end_dt else ""
+            uid_suffix = start_dt.isoformat()
 
         desc = get("DESCRIPTION").replace("\\n", " ").replace("\\,", ",")
         loc  = get("LOCATION").replace("\\n", " ").replace("\\,", ",")
 
         events.append({
-            "uid":            get("UID") + "@" + start_dt.isoformat(),
+            "uid":            get("UID") + "@" + uid_suffix,
             "subject":        get("SUMMARY") or _("Untitled"),
-            "start":          start_dt.isoformat().replace("+00:00", "Z"),
-            "end":            end_dt.isoformat().replace("+00:00", "Z") if end_dt else "",
+            "start":          start_iso,
+            "end":            end_iso,
             "location":       loc,
             "join_url":       _extract_join_url(desc, loc),
             "status":         _event_status_builtin(get),
+            "is_all_day":     is_all_day,
             "calendar_name":  calendar.get("name", ""),
             "calendar_color": calendar.get("color", "#1e88e5"),
         })

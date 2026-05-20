@@ -30,7 +30,7 @@
         "privacy-section": {
             "type": "section",
             "title": "Privacy",
-            "keys": ["hidden-mode"]
+            "keys": ["hidden-mode", "hide-subject"]
         },
         "notifications-section": {
             "type": "section",
@@ -126,6 +126,12 @@
         "type": "switch",
         "default": false,
         "description": "Hidden Mode: shows only the remaining time (countdown), hides meeting name and time in panel. Useful for screen sharing or recording."
+    },
+    "hide-subject": {
+        "type": "switch",
+        "default": false,
+        "description": "Hide meeting subject (show only time + countdown)",
+        "tooltip": "Less drastic than Hidden Mode. Useful when you want to keep timing visible but hide names from screen sharing."
     },
     "notify-enabled": {
         "type": "switch",
