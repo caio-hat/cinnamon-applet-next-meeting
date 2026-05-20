@@ -560,41 +560,25 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         return item;
     }
 
-    // ── Marquee (smooth pixel-based scrolling panel label) ──────────────────
-    // The text is set ONCE per marquee run (duplicated for seamless loop)
-    // and only the clutter_text translation moves at ~30fps. The parent
-    // St.Label is clipped to its allocation so the duplicated text never
-    // leaks past the panel slot, and gets a fixed min/max width so the
-    // applet icon next to it stays put.
+    // ── Marquee (character-step scrolling panel label) ──────────────────────
+    // The pixel-based approach (clutter_text translation) was unreliable on
+    // GJS/Cinnamon — set_x/set_translation either deferred repaints until a
+    // hover event or got overwritten by St.Label's own allocate. We're back
+    // to swapping set_applet_label() with a sliding window of characters,
+    // but with a much shorter tick (50 ms) and monospace + min-width on the
+    // panel label so the icon next to it stays put and steps are uniform.
     _startMarquee() {
         if (this._marqueeTimer) return;
-        if (!this._applet_label || !this._applet_label.clutter_text) return;
-
-        let approxPx   = (this.labelMaxChars || 40) * 8;
-        let pxPerFrame = Math.max(1, Math.round((this.marqueeSpeed || 4) / 2));
-
-        this._applet_label.set_style(
-            "min-width: " + approxPx + "px; max-width: " + approxPx + "px;"
-        );
-        this._applet_label.add_style_class_name("next-meeting-marquee");
-        try { this._applet_label.set_clip_to_allocation(true); } catch (_e) { /* ignore */ }
-
-        // Duplicate the text with spacer so the wrap is invisible.
-        let padded = this._marqueeText + "    ";
-        this._applet_label.clutter_text.set_text(padded + padded);
-
-        // Measure one copy in pixels via Pango layout.
-        try {
-            let layout = this._applet_label.clutter_text.get_layout();
-            let [fullW, _h] = layout.get_pixel_size();
-            this._marqueeCopyWidth = Math.max(1, Math.round(fullW / 2));
-        } catch (_e) {
-            this._marqueeCopyWidth = padded.length * 8;
+        let speedMs = Math.max(50, Math.round(550 / Math.max(1, this.marqueeSpeed || 4)));
+        if (this._applet_label) {
+            let approxPx = (this.labelMaxChars || 40) * 8;
+            this._applet_label.set_style(
+                "min-width: " + approxPx + "px; font-family: monospace;"
+            );
+            this._applet_label.add_style_class_name("next-meeting-marquee");
         }
-        this._marqueePxOffset = 0;
-
-        this._marqueeTimer = Mainloop.timeout_add(33, () => {
-            this._tickMarqueePx(pxPerFrame);
+        this._marqueeTimer = Mainloop.timeout_add(speedMs, () => {
+            this._tickMarquee();
             return GLib.SOURCE_CONTINUE;
         });
     }
@@ -605,34 +589,20 @@ class NextMeetingApplet extends Applet.TextIconApplet {
             this._marqueeTimer = 0;
         }
         if (this._applet_label) {
-            if (this._applet_label.clutter_text) {
-                try {
-                    this._applet_label.clutter_text.set_x(0);
-                    this._applet_label.clutter_text.set_translation(0, 0, 0);
-                } catch (_e) { /* ignore */ }
-            }
             this._applet_label.set_style(null);
             this._applet_label.remove_style_class_name("next-meeting-marquee");
-            try { this._applet_label.set_clip_to_allocation(false); }
-            catch (_e) { /* ignore */ }
         }
-        this._marqueeText      = "";
-        this._marqueePxOffset  = 0;
-        this._marqueeCopyWidth = 0;
+        this._marqueeText     = "";
+        this._marqueePxOffset = 0;
     }
 
-    _tickMarqueePx(step) {
+    _tickMarquee() {
         if (!this._marqueeText) { this._stopMarquee(); return; }
-        if (!this._applet_label || !this._applet_label.clutter_text) return;
-        this._marqueePxOffset = (this._marqueePxOffset + step) % this._marqueeCopyWidth;
-        try {
-            // Use clutter_text.set_anchor_point + set_x for reliable
-            // per-frame paint (set_translation alone can defer redraw
-            // until the actor is otherwise invalidated, e.g. on hover).
-            this._applet_label.clutter_text.set_x(-this._marqueePxOffset);
-            this._applet_label.clutter_text.queue_redraw();
-            this._applet_label.queue_redraw();
-        } catch (_e) { /* ignore */ }
+        let max    = this.labelMaxChars || 40;
+        let padded = this._marqueeText + "    ";
+        let slice  = (padded + this._marqueeText).slice(this._marqueePxOffset, this._marqueePxOffset + max);
+        this.set_applet_label(slice);
+        this._marqueePxOffset = (this._marqueePxOffset + 1) % padded.length;
     }
     // ────────────────────────────────────────────────────────────────────────
 

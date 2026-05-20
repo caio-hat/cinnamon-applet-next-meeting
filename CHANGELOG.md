@@ -4,6 +4,15 @@ All notable changes to **Next Meeting** are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/).
 
+## [2.5.3] — 2026-05-19
+
+### Fixed
+- Marquee fully reverted to character-stepped scrolling (`set_applet_label` with a sliding window). The pixel-based attempts via `clutter_text.set_translation` and `set_x` were unreliable on GJS/Cinnamon — either the text wouldn't paint until hover, or St.Label's own allocate overwrote the position and the scroll froze entirely.
+- Tick interval lowered from a minimum of 80 ms to ~50 ms and tied to `marquee-speed` as `550 / speed` ms (1 = slow, 20 = fast); `set_applet_label` triggers an unconditional repaint so frames never skip. The icon next to the label still stays put thanks to `min-width + monospace` on the panel label.
+
+### Changed
+- `marquee-speed` units field in the schema changed from `px/frame` to `level` to match the new semantics.
+
 ## [2.5.2] — 2026-05-19
 
 ### Fixed
