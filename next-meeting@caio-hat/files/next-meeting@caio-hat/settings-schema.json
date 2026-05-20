@@ -67,10 +67,10 @@
         "type": "list",
         "description": "Calendars (Google, Outlook, Apple, Nextcloud... ICS/iCal URLs)",
         "columns": [
+            { "id": "enabled", "title": "Active",      "type": "boolean" },
             { "id": "name",    "title": "Name",        "type": "string" },
-            { "id": "url",     "title": "ICS URL",     "type": "string" },
-            { "id": "color",   "title": "Color (hex)", "type": "string" },
-            { "id": "enabled", "title": "Active",      "type": "boolean" }
+            { "id": "url",     "title": "ICS URL",     "type": "string", "ellipsize": "end", "max-width": 280 },
+            { "id": "color",   "title": "Color (hex)", "type": "string" }
         ],
         "default": []
     },
@@ -104,12 +104,12 @@
     },
     "marquee-speed": {
         "type": "spinbutton",
-        "default": 2,
+        "default": 4,
         "min": 1,
         "max": 20,
         "step": 1,
-        "units": "x100 ms",
-        "description": "Scroll speed (1=fast, 20=slow)"
+        "units": "px/frame",
+        "description": "Scroll speed (1=slow, 20=fast)"
     },
     "show-tentative": {
         "type": "switch",

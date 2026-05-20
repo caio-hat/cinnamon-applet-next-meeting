@@ -52,7 +52,8 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         this._refreshTimer      = 0;
         this._notifyTimer       = 0;
         this._marqueeTimer      = 0;
-        this._marqueeOffset     = 0;
+        this._marqueePxOffset   = 0;
+        this._marqueeCopyWidth  = 0;
         this._marqueeText       = "";
 
         this.settings = new Settings.AppletSettings(this, UUID, instanceId);
@@ -559,20 +560,41 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         return item;
     }
 
-    // ── Marquee (scrolling panel label) ─────────────────────────────────────
-    // Uses a stable label (no countdown) so the scroll doesn't reset every 30s.
-    // Locks panel-label min-width + monospace font while active so the icon
-    // doesn't shift as the proportional-width text scrolls.
+    // ── Marquee (smooth pixel-based scrolling panel label) ──────────────────
+    // The text is set ONCE per marquee run (duplicated for seamless loop)
+    // and only the clutter_text translation moves at ~30fps. The parent
+    // St.Label is clipped to its allocation so the duplicated text never
+    // leaks past the panel slot, and gets a fixed min/max width so the
+    // applet icon next to it stays put.
     _startMarquee() {
         if (this._marqueeTimer) return;
-        let speedMs = Math.max(80, (this.marqueeSpeed || 2) * 100);
-        if (this._applet_label) {
-            let approxPx = (this.labelMaxChars || 40) * 8;
-            this._applet_label.set_style("min-width: " + approxPx + "px; font-family: monospace;");
-            this._applet_label.add_style_class_name("next-meeting-marquee");
+        if (!this._applet_label || !this._applet_label.clutter_text) return;
+
+        let approxPx   = (this.labelMaxChars || 40) * 8;
+        let pxPerFrame = Math.max(1, Math.round((this.marqueeSpeed || 4) / 2));
+
+        this._applet_label.set_style(
+            "min-width: " + approxPx + "px; max-width: " + approxPx + "px;"
+        );
+        this._applet_label.add_style_class_name("next-meeting-marquee");
+        try { this._applet_label.set_clip_to_allocation(true); } catch (_e) { /* ignore */ }
+
+        // Duplicate the text with spacer so the wrap is invisible.
+        let padded = this._marqueeText + "    ";
+        this._applet_label.clutter_text.set_text(padded + padded);
+
+        // Measure one copy in pixels via Pango layout.
+        try {
+            let layout = this._applet_label.clutter_text.get_layout();
+            let [fullW, _h] = layout.get_pixel_size();
+            this._marqueeCopyWidth = Math.max(1, Math.round(fullW / 2));
+        } catch (_e) {
+            this._marqueeCopyWidth = padded.length * 8;
         }
-        this._marqueeTimer = Mainloop.timeout_add(speedMs, () => {
-            this._tickMarquee();
+        this._marqueePxOffset = 0;
+
+        this._marqueeTimer = Mainloop.timeout_add(33, () => {
+            this._tickMarqueePx(pxPerFrame);
             return GLib.SOURCE_CONTINUE;
         });
     }
@@ -583,20 +605,27 @@ class NextMeetingApplet extends Applet.TextIconApplet {
             this._marqueeTimer = 0;
         }
         if (this._applet_label) {
+            if (this._applet_label.clutter_text) {
+                try { this._applet_label.clutter_text.set_translation(0, 0, 0); }
+                catch (_e) { /* ignore */ }
+            }
             this._applet_label.set_style(null);
             this._applet_label.remove_style_class_name("next-meeting-marquee");
+            try { this._applet_label.set_clip_to_allocation(false); }
+            catch (_e) { /* ignore */ }
         }
-        this._marqueeText   = "";
-        this._marqueeOffset = 0;
+        this._marqueeText      = "";
+        this._marqueePxOffset  = 0;
+        this._marqueeCopyWidth = 0;
     }
 
-    _tickMarquee() {
+    _tickMarqueePx(step) {
         if (!this._marqueeText) { this._stopMarquee(); return; }
-        let max    = this.labelMaxChars || 40;
-        let padded = this._marqueeText + "   ";
-        let slice  = (padded + this._marqueeText).slice(this._marqueeOffset, this._marqueeOffset + max);
-        this.set_applet_label(slice);
-        this._marqueeOffset = (this._marqueeOffset + 1) % padded.length;
+        if (!this._applet_label || !this._applet_label.clutter_text) return;
+        this._marqueePxOffset = (this._marqueePxOffset + step) % this._marqueeCopyWidth;
+        try {
+            this._applet_label.clutter_text.set_translation(-this._marqueePxOffset, 0, 0);
+        } catch (_e) { /* ignore */ }
     }
     // ────────────────────────────────────────────────────────────────────────
 
@@ -709,11 +738,13 @@ class NextMeetingApplet extends Applet.TextIconApplet {
         let max = this.labelMaxChars || 40;
         if (this.marqueeEnabled && staticLabel.length > max) {
             if (staticLabel !== this._marqueeText) {
-                this._marqueeText   = staticLabel;
-                this._marqueeOffset = 0;
+                this._stopMarquee();
+                this._marqueeText = staticLabel;
+                this._startMarquee();
+            } else if (!this._marqueeTimer) {
+                this._startMarquee();
             }
-            if (!this._marqueeTimer) this._startMarquee();
-            return; // marquee tick calls set_applet_label
+            return; // marquee owns the panel label
         }
 
         // No marquee — dynamic label with countdown, respects timerPosition setting

@@ -4,6 +4,13 @@ All notable changes to **Next Meeting** are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/).
 
+## [2.5.1] — 2026-05-19
+
+### Changed
+- **Calendars list**: column order is now `Active` (checkbox) → `Name` → `ICS URL` → `Color`, so the active toggle is at the start of each row. The URL column has `ellipsize: end` and `max-width: 280` to keep long URLs from blowing up the row width.
+- **Smooth marquee**: scrolling now moves pixel-by-pixel via Pango layout measurement and `clutter_text.set_translation` at ~30 fps, instead of stepping one character per tick. The parent label is clipped to its allocation so the duplicated text never leaks past the panel slot.
+- `marquee-speed` semantics flipped to pixels-per-frame (1 = slow, 20 = fast). Default raised from 2 to 4 (≈ 2 px/frame). Units in the schema updated from `x100 ms` to `px/frame`.
+
 ## [2.5.0] — 2026-05-19
 
 ### Added
