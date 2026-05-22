@@ -1,6 +1,20 @@
-# Next Meeting — Cinnamon Applet
+<p align="center">
+  <img src="./logo.png" alt="Next Meeting" width="520">
+</p>
 
-A clean, minimalist Cinnamon panel applet that shows your **next meeting** in the panel, with countdown, in-progress indicator, conflict detection and desktop notifications.
+<p align="center">
+  <em>A clean, minimalist Cinnamon panel applet that shows your <strong>next meeting</strong> in the panel —<br>
+  with countdown, in-progress indicator, conflict detection and desktop notifications.</em>
+</p>
+
+<p align="center">
+  <a href="#install"><img src="https://img.shields.io/badge/install-setup.sh-1e88e5?style=flat-square" alt="Install"></a>
+  <img src="https://img.shields.io/badge/Cinnamon-4.0%2B-3949ab?style=flat-square" alt="Cinnamon 4.0+">
+  <img src="https://img.shields.io/badge/license-MIT-64748b?style=flat-square" alt="MIT License">
+  <img src="https://img.shields.io/badge/feed-ICS%20%2F%20iCal-ff7043?style=flat-square" alt="ICS / iCal">
+</p>
+
+---
 
 Works with **any standard ICS/iCal URL** — Google Calendar, Outlook, Apple Calendar, Nextcloud, Fastmail, Proton Calendar, or any RFC 5545 compliant feed.
 
@@ -61,3 +75,11 @@ MIT — see [LICENSE](LICENSE).
 ## Contributing
 
 Contributions welcome. Add a new language by copying `next-meeting@caio-hat/files/next-meeting@caio-hat/po/next-meeting@caio-hat.pot` to `<lang>.po` and translating the strings.
+
+## Brand
+
+<p align="left">
+  <img src="./next-meeting@caio-hat/icon.png" alt="Next Meeting icon" width="64">
+</p>
+
+Source files: [`logo.svg`](./logo.svg) · [`next-meeting@caio-hat/icon.svg`](./next-meeting%40caio-hat/icon.svg). Tile gradient `#1e88e5 → #3949ab`; accent `#ff7043`.

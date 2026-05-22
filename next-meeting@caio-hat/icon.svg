@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Next Meeting icon">
+  <title>Next Meeting</title>
+  <defs>
+    <linearGradient id="nm-tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e88e5"/>
+      <stop offset="100%" stop-color="#3949ab"/>
+    </linearGradient>
+    <radialGradient id="nm-glow" cx="0.5" cy="0.5" r="0.6">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Rounded tile -->
+  <rect x="2" y="2" width="44" height="44" rx="10" ry="10" fill="url(#nm-tile)"/>
+  <rect x="2" y="2" width="44" height="44" rx="10" ry="10" fill="url(#nm-glow)"/>
+
+  <!-- Clock ring -->
+  <circle cx="24" cy="24" r="13" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-opacity="0.95"/>
+
+  <!-- Hour ticks at 12 / 3 / 6 / 9 -->
+  <g fill="#ffffff" fill-opacity="0.9">
+    <rect x="23.1" y="9.2"  width="1.8" height="3" rx="0.9"/>
+    <rect x="35.8" y="23.1" width="3"   height="1.8" rx="0.9"/>
+    <rect x="23.1" y="35.8" width="1.8" height="3" rx="0.9"/>
+    <rect x="9.2"  y="23.1" width="3"   height="1.8" rx="0.9"/>
+  </g>
+
+  <!-- Minute hand pointing to the "next event" dot (~1:30 position) -->
+  <line x1="24" y1="24" x2="32.3" y2="15.7"
+        stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+
+  <!-- Center pivot -->
+  <circle cx="24" cy="24" r="1.6" fill="#ffffff"/>
+
+  <!-- "Next event" accent dot (warm color = imminence) -->
+  <circle cx="33.2" cy="14.8" r="4.2" fill="#ff7043"/>
+  <circle cx="33.2" cy="14.8" r="4.2" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-opacity="0.95"/>
+</svg>
