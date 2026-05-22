@@ -4,6 +4,12 @@ All notable changes to **Next Meeting** are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- Project branding: `next-meeting@caio-hat/icon.svg` + `icon.png` (48×48, for the future cinnamon-spices listing) and `logo.svg` + `logo.png` (wide wordmark for README and external branding). Mark concept: clock face with the minute hand pointing toward a warm "next event" dot on a blue→indigo tile — calendar-provider-agnostic.
+- README now leads with a centered logo banner and badge row (install / Cinnamon / MIT / ICS), plus a `## Brand` section linking the SVG sources and listing the palette.
+
 ## [2.5.3] — 2026-05-19
 
 ### Fixed
